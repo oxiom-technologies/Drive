@@ -73,7 +73,9 @@ class _LoginnAdminState extends State<LoginnAdmin> {
       ));
       if (widget.type == 'Admin') {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: ((context) => HomapageAdmin())));
+            .pushAndRemoveUntil(MaterialPageRoute(builder: ((context) => const HomapageAdmin()), settings: RouteSettings()),
+              (route) => false, // Removes all routes from the stack
+            );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

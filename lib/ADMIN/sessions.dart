@@ -1,11 +1,16 @@
+import 'dart:convert';
 
 import 'package:drive_/ADMIN/newSession.dart';
 import 'package:drive_/ADMIN/sessionAll.dart';
+import 'package:drive_/CONNECTION/connection.dart';
 import 'package:drive_/tabar/tabbaritem.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 class SessionsAdmin extends StatefulWidget {
-  const SessionsAdmin({super.key});
+  final String type;
+  final String? id;
+  const SessionsAdmin({super.key, required this.type, this.id});
 
   @override
   State<SessionsAdmin> createState() => _SessionsAdminState();
@@ -20,26 +25,76 @@ class _SessionsAdminState extends State<SessionsAdmin> {
     });
   }
 
+  bool loaded = false;
+  List<Map<dynamic, dynamic>> sessions = [];
+
+  Future<void> loadAllSessions() async {
+    setState(() {
+      loaded = false;
+    });
+    String endPoint = widget.type == 'admin'
+        ? 'load_sessions.php'
+        : widget.type == 'user'
+            ? 'load_sessions_by_student.php?stud_id=${widget.id}'
+            : 'load_sessions_by_tutor.php?tutor_id=${widget.id}';
+    print(endPoint);
+    var response = await get(
+      Uri.parse('${Con.url}/$endPoint'),
+    );
+    try {
+      sessions = (jsonDecode(response.body)['sessions'] as List<dynamic>)
+          .map((e) => e as Map<dynamic, dynamic>)
+          .toList();
+    } catch (e) {
+      print(e);
+    }
+    setState(() {
+      loaded = true;
+    });
+  }
+
+  List<String> types = [
+    'MCWG',
+    'LMV',
+    'HMV',
+  ];
+
+  String? dropdownValue;
+
+  @override
+  void initState() {
+    dropdownValue = types[0];
+    // TODO: implement initState
+    super.initState();
+    loadAllSessions();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 3,
-      child: Scaffold( 
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
         floatingActionButton: Padding(
-          padding: const EdgeInsets.only(right:15.0),
-          child: SizedBox(height: 50,width: 50,
+          padding: const EdgeInsets.only(right: 15.0),
+          child: SizedBox(
+            height: 50,
+            width: 50,
             child: FloatingActionButton(
-            elevation: 1,
-            onPressed: () {
-                Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => NewSession()));
-            },
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            child: const Icon(
-              Icons.add,
-              size: 32,
+              elevation: 1,
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => NewSession()))
+                    .then((value) {
+                  if (value != null && value) loadAllSessions();
+                });
+              },
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              child: const Icon(
+                Icons.add,
+                size: 32,
+              ),
             ),
-                ),
           ),
         ),
         backgroundColor: Colors.white,
@@ -67,8 +122,9 @@ class _SessionsAdminState extends State<SessionsAdmin> {
           backgroundColor: Colors.white,
           elevation: 0,
         ),
-        body: SizedBox(height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
+        body: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
               Padding(
@@ -80,11 +136,26 @@ class _SessionsAdminState extends State<SessionsAdmin> {
                       decoration: BoxDecoration(
                           color: const Color.fromRGBO(185, 190, 190, 1),
                           borderRadius: BorderRadius.circular(8)),
-                      width: 84,
-                      height: 28,
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Text("Type"), Icon(Icons.expand_more)],
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: DropdownButton(
+                        underline: Container(),
+                        iconEnabledColor: Colors.white,
+                        value: dropdownValue,
+                        //dropdownColor: Color.fromARGB(255, 34, 34, 34),
+                        focusColor: Colors.white,
+                        icon: Icon(Icons.arrow_drop_down),
+                        style: TextStyle(color: Colors.black),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            dropdownValue = newValue!;
+                          });
+                        },
+                        items: types.map((value) {
+                          return DropdownMenuItem(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ],
@@ -118,25 +189,60 @@ class _SessionsAdminState extends State<SessionsAdmin> {
                   ),
                 ),
               ),
-               Expanded(
+              Expanded(
                 child: TabBarView(
-                 physics:BouncingScrollPhysics(),
-               
+                  physics: BouncingScrollPhysics(),
                   children: [
-                    
-                    if (selectedTabIndex == 0) SessionsALLAdmin(),
-                  
-                    if (selectedTabIndex == 1) SessionsALLAdmin(),
-                    if (selectedTabIndex == 2) SessionsALLAdmin(),
+                    if (selectedTabIndex == 0)
+                      loaded
+                          ? RefreshIndicator(
+                              child: SessionsALLAdmin(
+                                  sessions: sessions
+                                      .where((element) =>
+                                          element['type'] == dropdownValue)
+                                      .toList()),
+                              onRefresh: loadAllSessions,
+                            )
+                          : Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                    if (selectedTabIndex == 1)
+                      loaded
+                          ? RefreshIndicator(
+                              child: SessionsALLAdmin(
+                                sessions: sessions
+                                    .where((element) =>
+                                        element['status'] == 'finished' &&
+                                        element['type'] == dropdownValue)
+                                    .toList(),
+                              ),
+                              onRefresh: loadAllSessions,
+                            )
+                          : Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                    if (selectedTabIndex == 2)
+                      loaded
+                          ? RefreshIndicator(
+                              child: SessionsALLAdmin(
+                                sessions: sessions
+                                    .where((element) =>
+                                        element['status'] == 'pending' &&
+                                        element['type'] == dropdownValue)
+                                    .toList(),
+                              ),
+                              onRefresh: loadAllSessions,
+                            )
+                          : Center(
+                              child: CircularProgressIndicator(),
+                            ),
                   ],
                 ),
               ),
             ],
           ),
         ),
-        
       ),
     );
   }
 }
-

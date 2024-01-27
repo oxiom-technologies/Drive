@@ -17,15 +17,22 @@ class _NewSessionState extends State<NewSession> {
   var studid;
   var tutorid;
 
- Future<void> addSession() async {
-  
+    List<String> types = [
+      'MCWG',
+      'LMV',
+      'HMV',
+    ];
+
+    String? _selectedType;
+
+  Future<void> addSession() async {
+
     var data = {
-      
       'stud_id': _selectedStudent.toString(),
-       'tutor_id':selected_VehicleType.toString(),
+      'tutor_id': selected_VehicleType.toString(),
       'date': dateController.text,
       'time': timeController.text,
-     
+      'type': _selectedType
     };
     print("${data}***********");
     var response =
@@ -59,66 +66,59 @@ class _NewSessionState extends State<NewSession> {
           duration: const Duration(seconds: 3),
         ),
       );
-      Navigator.of(context).pop();
-    
-
-    
+      Navigator.of(context).pop(true);
     }
   }
-
-
-
-
 
   DateTime? _selectedDate;
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
   final DateTime _minDate = DateTime(2020, 1, 1);
-  final DateTime _maxDate = DateTime.now();
+  final DateTime _maxDate = DateTime(2080, 1, 1);
   DateTime selectedTime = DateTime.now();
   TextEditingController timeController = TextEditingController();
   TextEditingController dateController = TextEditingController();
 
   Future<void> _showTimePicker(BuildContext context) async {
-  final TimeOfDay? picked = await showTimePicker(
-    context: context,
-    initialTime: TimeOfDay.fromDateTime(selectedTime),
-    builder: (BuildContext context, Widget? child) {
-      return MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-        child: child!,
-      );
-    },
-  );
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(selectedTime),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
+    );
 
-  if (picked != null) {
-    setState(() {
-      selectedTime = DateTime(
-        selectedTime.year,
-        selectedTime.month,
-        selectedTime.day,
-        picked.hour,
-        picked.minute,
-      );
+    if (picked != null) {
+      setState(() {
+        selectedTime = DateTime(
+          selectedTime.year,
+          selectedTime.month,
+          selectedTime.day,
+          picked.hour,
+          picked.minute,
+        );
 
-      // Format time with AM/PM
-      String formattedTime = DateFormat.jm().format(selectedTime);
+        // Format time with AM/PM
+        String formattedTime = DateFormat.jm().format(selectedTime);
 
-      timeController.text = formattedTime;
+        timeController.text = formattedTime;
 
-      // Clear minute error if any
-      // You can customize this part based on your specific validation criteria
-      // For example, checking if the selected time is within a valid range
-      if (selectedTime.minute % 5 != 0) {
-        // Handle minute error as needed
-        // For simplicity, let's round up to the nearest 5 minutes
-        int roundedMinutes = ((selectedTime.minute / 5).round()) * 5;
-        selectedTime = selectedTime.add(Duration(minutes: roundedMinutes - selectedTime.minute));
-        timeController.text = DateFormat.jm().format(selectedTime);
-      }
-    });
+        // Clear minute error if any
+        // You can customize this part based on your specific validation criteria
+        // For example, checking if the selected time is within a valid range
+        if (selectedTime.minute % 5 != 0) {
+          // Handle minute error as needed
+          // For simplicity, let's round up to the nearest 5 minutes
+          int roundedMinutes = ((selectedTime.minute / 5).round()) * 5;
+          selectedTime = selectedTime
+              .add(Duration(minutes: roundedMinutes - selectedTime.minute));
+          timeController.text = DateFormat.jm().format(selectedTime);
+        }
+      });
+    }
   }
-}
-
 
   String? _selectedStudent;
 
@@ -191,8 +191,6 @@ class _NewSessionState extends State<NewSession> {
     // drop_flag==1?      item=jsonDecode(response.body):item.add('Nothing to show');
   }
 
- 
-
   @override
   void initState() {
     super.initState();
@@ -264,8 +262,8 @@ class _NewSessionState extends State<NewSession> {
                   borderRadius: BorderRadius.circular(20),
                   value: _selectedStudent,
                   items: Liststud.map((student) {
-                     studid='${student['id']}';
-                  
+                    studid = '${student['id']}';
+
                     return DropdownMenuItem<String>(
                       value: '$studid',
                       child: Text('${student['name']}'),
@@ -300,9 +298,9 @@ class _NewSessionState extends State<NewSession> {
                   borderRadius: BorderRadius.circular(20),
                   value: _selectedTutor,
                   items: ListTut.map((Tutor) {
-                    tutorid= '${Tutor['id']}';
+                    tutorid = '${Tutor['id']}';
                     return DropdownMenuItem<String>(
-                      value:'$tutorid',
+                      value: '$tutorid',
                       child: Text('${Tutor['name']}'),
                     );
                   }).toList(),
@@ -322,10 +320,44 @@ class _NewSessionState extends State<NewSession> {
                 ),
               ),
               const SizedBox(height: 15.0),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                    10,
+                  ),
+                  color: const Color.fromRGBO(232, 234, 236, 1),
+                ),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                child: DropdownButtonFormField<String>(
+                  borderRadius: BorderRadius.circular(20),
+                  value: _selectedType,
+                  items: types.map((type) {
+                    return DropdownMenuItem<String>(
+                      value: type,
+                      child: Text(type),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedType = newValue!;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    // Optional: Add decoration for the form field
+                    // labelText: 'Select a student', // Label text
+                    hintText: "Select a vehicle type",
+                    border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(10)), // Add a border
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15.0),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextFormField(
                   controller: dateController,
+                  readOnly: true,
                   decoration: InputDecoration(
                     suffixIcon: const Icon(Icons.calendar_month),
                     border: OutlineInputBorder(
@@ -352,7 +384,7 @@ class _NewSessionState extends State<NewSession> {
                   onTap: () async {
                     final DateTime? picked = await showDatePicker(
                       context: context,
-                      initialDate: _selectedDate ?? _maxDate,
+                      initialDate: _selectedDate ?? DateTime.now(),
                       firstDate: _minDate,
                       lastDate: _maxDate,
                     );
@@ -371,6 +403,7 @@ class _NewSessionState extends State<NewSession> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextFormField(
                   controller: timeController,
+                  readOnly: true,
                   decoration: InputDecoration(
                     hintText: 'Select Time',
                     filled: true,
@@ -386,13 +419,11 @@ class _NewSessionState extends State<NewSession> {
                 ),
               ),
               const SizedBox(height: 15.0),
-             
               const SizedBox(height: 50.0),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ElevatedButton(
                   onPressed: () {
-
                     addSession();
                   },
                   style: ElevatedButton.styleFrom(

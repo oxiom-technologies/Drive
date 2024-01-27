@@ -22,6 +22,12 @@ class AddStud extends StatefulWidget {
 var selected_item1;
 
 String? _selected;
+List<String> types = [
+  'MCWG',
+  'LMV',
+  'HMV',
+];
+List<String> selectedTypes = [];
 
 List<String> _sex = [
   'Male',
@@ -70,7 +76,7 @@ class _AddStudState extends State<AddStud> {
       'email': mail.text,
       'phone': phone.text,
       'joineddate': dateController.text,
-      'vehicle': selected_item1.toString(),
+      'vehicle': selectedTypes.join(', '),
       'gen_ID': _IDController.text,
       'type': widget.type,
       'AdminID': Lid.toString(),
@@ -79,7 +85,7 @@ class _AddStudState extends State<AddStud> {
     var response =
         await post(Uri.parse('${Con.url}/registration.php'), body: data);
 
-    print(response.statusCode);
+    print(response.body);
 
     var res = jsonDecode(response.body);
 
@@ -687,65 +693,92 @@ class _AddStudState extends State<AddStud> {
                     height: 20,
                   ),
 
-                  DropdownButtonFormField(
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a package';
-                      }
-                      return null;
+                  // DropdownButtonFormField(
+                  //   validator: (value) {
+                  //     if (value == null) {
+                  //       return 'Please select a package';
+                  //     }
+                  //     return null;
+                  //   },
+                  //   style: const TextStyle(fontSize: 16, color: Colors.black),
+                  //   isExpanded: true,
+                  //   hint: const Text(' Select Your vehicle'),
+                  //   value: selected_item1,
+                  //   items: ListData.map((VehicleType) => DropdownMenuItem(
+                  //         value: '${VehicleType['name']}',
+                  //         child: Column(
+                  //           mainAxisSize: MainAxisSize.min,
+                  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //           children: [
+                  //             Row(
+                  //               mainAxisAlignment:
+                  //                   MainAxisAlignment.spaceBetween,
+                  //               children: [
+                  //                 Text(
+                  //                   '${VehicleType['name']}',
+                  //                 ),
+                  //                 const SizedBox(
+                  //                   width: 0,
+                  //                 ),
+                  //                 Text(
+                  //                   '${VehicleType['duration']}',
+                  //                   style: const TextStyle(color: Colors.blue),
+                  //                 ),
+                  //                 const SizedBox(
+                  //                   width: 20,
+                  //                 ),
+                  //                 Text(
+                  //                   'Rs.${VehicleType['price']}',
+                  //                   style: const TextStyle(color: Colors.red),
+                  //                 ),
+                  //                 const SizedBox(
+                  //                   width: 0,
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       )).toList(),
+                  //   onChanged: (val) {
+                  //     setState(() {
+                  //       print("Selected value: $val");
+                  //       print("Dropdown items: $ListData");
+                  //       selected_item1 = val;
+                  //     });
+                  //   },
+                  //   decoration: InputDecoration(
+                  //     border: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(10)),
+                  //     filled: true,
+                  //     fillColor: const Color.fromRGBO(247, 248, 249, 1),
+                  //   ),
+                  // ),
+                  Text(
+                    'Select Vehicles',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: types.length,
+                    itemBuilder: (context, index) {
+                      String type = types[index];
+                      bool isSelected = selectedTypes.contains(type);
+
+                      return ListTile(
+                        title: Text(type),
+                        tileColor: isSelected ? Colors.blue : null,
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              selectedTypes.remove(type);
+                            } else {
+                              selectedTypes.add(type);
+                            }
+                          });
+                        },
+                      );
                     },
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                    isExpanded: true,
-                    hint: const Text(' Select Your vehicle'),
-                    value: selected_item1,
-                    items: ListData.map((VehicleType) => DropdownMenuItem(
-                          value: '${VehicleType['name']}',
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${VehicleType['name']}',
-                                  ),
-                                  const SizedBox(
-                                    width: 0,
-                                  ),
-                                  Text(
-                                    '${VehicleType['duration']}',
-                                    style: const TextStyle(color: Colors.blue),
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  Text(
-                                    'Rs.${VehicleType['price']}',
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                  const SizedBox(
-                                    width: 0,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        print("Selected value: $val");
-                        print("Dropdown items: $ListData");
-                        selected_item1 = val;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      filled: true,
-                      fillColor: const Color.fromRGBO(247, 248, 249, 1),
-                    ),
                   ),
 
                   SizedBox(

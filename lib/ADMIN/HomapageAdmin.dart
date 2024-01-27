@@ -6,6 +6,7 @@ import 'package:drive_/ADMIN/Students.dart';
 import 'package:drive_/ADMIN/Tutors.dart';
 import 'package:drive_/ADMIN/model%20AdminHome.dart';
 import 'package:drive_/ADMIN/profileAdmin.dart';
+import 'package:drive_/ADMIN/qbank.dart';
 import 'package:drive_/ADMIN/sessions.dart';
 import 'package:drive_/STUDENTS/Trail%20Appointment.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +140,7 @@ class _HomapageAdminState extends State<HomapageAdmin> {
                       switch (index) {
                         case 0:
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const Students()));
+                              builder: (context) =>  Students()));
                           break;
                         case 1:
                           Navigator.of(context).push(MaterialPageRoute(
@@ -151,7 +152,7 @@ class _HomapageAdminState extends State<HomapageAdmin> {
                           break;
                         case 3:
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const SessionsAdmin()));
+                              builder: (context) => const SessionsAdmin(type: 'admin',)));
                           break;
                         case 4:
                           Navigator.of(context).push(MaterialPageRoute(
@@ -159,7 +160,7 @@ class _HomapageAdminState extends State<HomapageAdmin> {
                           break;
                         case 5:
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const Qbank()));
+                              builder: (context) =>  qbank()));
                           break;
                         case 6:
                           Navigator.of(context).push(MaterialPageRoute(

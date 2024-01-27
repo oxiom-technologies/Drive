@@ -1,3 +1,4 @@
+import 'package:drive_/ADMIN/uploadQuizPDF.dart';
 import 'package:flutter/material.dart';
 
 class Quiz extends StatefulWidget {
@@ -47,24 +48,30 @@ class _QuizState extends State<Quiz> {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(15),
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-                color: const Color.fromRGBO(37, 51, 52, 1),
-                borderRadius: BorderRadius.circular(10)),
-            child: const Row(mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Create New PDF  ",
-                  style: TextStyle(color: Colors.white, fontSize: 11),
-                ),
-                Icon(
-                  Icons.note_add_outlined,
-                  size: 20,
-                  color: Colors.white,
-                )
-              ],
+          InkWell(
+            onTap: (){
+              Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>  UploadPdfScreen()));
+            },
+            child: Container(
+              padding: const EdgeInsets.all(15),
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                  color: const Color.fromRGBO(37, 51, 52, 1),
+                  borderRadius: BorderRadius.circular(10)),
+              child: const Row(mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Create New PDF  ",
+                    style: TextStyle(color: Colors.white, fontSize: 11),
+                  ),
+                  Icon(
+                    Icons.note_add_outlined,
+                    size: 20,
+                    color: Colors.white,
+                  )
+                ],
+              ),
             ),
           ),
           Expanded(

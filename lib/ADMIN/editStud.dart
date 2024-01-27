@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 class Editstud extends StatefulWidget {
-  var name, address, age, gender, date, number, uid;
+  var name, address, age, gender, date, number, uid, vehicle;
 
   Editstud(
       {super.key,
@@ -15,13 +15,20 @@ class Editstud extends StatefulWidget {
       required this.age,
       required this.date,
       required this.gender,
-      required this.number});
+      required this.number,
+      required this.vehicle});
 
   @override
   State<Editstud> createState() => _EditstudState();
 }
 
 class _EditstudState extends State<Editstud> {
+  List<String> types = [
+    'MCWG',
+    'LMV',
+    'HMV',
+  ];
+  List<String> selectedTypes = [];
   Future<void> editStudent() async {
     var data = {
       'uid': widget.uid,
@@ -31,6 +38,7 @@ class _EditstudState extends State<Editstud> {
       'date': widget.date.text,
       'gender': widget.gender.text,
       'number': widget.number.text,
+      'vehicle': selectedTypes.join(', ')
     };
     print("${data}*********************");
     var response = await post(Uri.parse('${Con.url}/editstud.php'), body: data);
@@ -50,6 +58,7 @@ class _EditstudState extends State<Editstud> {
   @override
   void initState() {
     super.initState();
+    selectedTypes = widget.vehicle;
     setState(() {
       widget.name;
       widget.address;
@@ -166,23 +175,46 @@ class _EditstudState extends State<Editstud> {
                 ),
                 keyboardType: TextInputType.name,
               ),
+              ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: types.length,
+                itemBuilder: (context, index) {
+                  String type = types[index];
+                  bool isSelected = selectedTypes.contains(type);
+
+                  return ListTile(
+                    title: Text(type),
+                    tileColor: isSelected ? Colors.blue : null,
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          selectedTypes.remove(type);
+                        } else {
+                          selectedTypes.add(type);
+                        }
+                      });
+                    },
+                  );
+                },
+              ),
               SizedBox(
                 height: 60,
               ),
-               ElevatedButton(
-                  onPressed: () {
-                   editStudent();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(MediaQuery.of(context).size.width, 50),
-                    backgroundColor: const Color.fromRGBO(38, 52, 53, 1),
-                    foregroundColor: Colors.white,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
+              ElevatedButton(
+                onPressed: () {
+                  editStudent();
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(MediaQuery.of(context).size.width, 50),
+                  backgroundColor: const Color.fromRGBO(38, 52, 53, 1),
+                  foregroundColor: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
-                  child: const Text("Save"),
                 ),
+                child: const Text("Save"),
+              ),
             ],
           ),
         ),

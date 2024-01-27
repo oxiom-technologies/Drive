@@ -28,16 +28,22 @@ class _UpdateStudState extends State<UpdateStud> {
   TextEditingController mailController = TextEditingController();
   var email;
   var password;
-  var vehicletypee;
   var img;
   int flag = 0;
   var imageflag = 0;
   var res;
+
+  List<String> types = [
+    'MCWG',
+    'LMV',
+    'HMV',
+  ];
+  List<String> selectedTypes = [];
+
   Future<void> _refresh() async {
     await Future.delayed(const Duration(milliseconds: 100));
     setState(() {});
   }
-  
 
   Future<void> viewStudDetails() async {
     var data = {'uid': widget.uid.toString()};
@@ -64,7 +70,10 @@ class _UpdateStudState extends State<UpdateStud> {
         mailController.text = res[0]['email'];
         email = res[0]['email'];
         password = res[0]['password'];
-        vehicletypee = res[0]['selected_veh'];
+        try {
+          selectedTypes = res[0]['selected_veh'].toString().split(', ');
+          selectedTypes.removeWhere((element) => !types.contains(element));
+        } catch (e) {}
       });
     }
   }
@@ -121,8 +130,7 @@ class _UpdateStudState extends State<UpdateStud> {
       viewStudDetails();
       viewStudprofilepic();
       _refresh();
-            print("${imageflag}--------------------");
-
+      print("${imageflag}--------------------");
     });
   }
 
@@ -156,15 +164,13 @@ class _UpdateStudState extends State<UpdateStud> {
 
     if (res[0]["result"] == 'Success') {
       setState(() {
-    //    imageflag = 1;
-        img = (res[0]['img']!='unavailable')?res[0]['img']:'noData';
-        if(img!='noData'){
-           imageflag = 1;
+        //    imageflag = 1;
+        img = (res[0]['img'] != 'unavailable') ? res[0]['img'] : 'noData';
+        if (img != 'noData') {
+          imageflag = 1;
         }
         print(img);
-          print("${imageflag}+++++++++++++++++");
-          
-
+        print("${imageflag}+++++++++++++++++");
       });
     }
   }
@@ -254,7 +260,6 @@ class _UpdateStudState extends State<UpdateStud> {
                         radius: 81,
                         backgroundColor: Colors.white,
                       ),
-                     
                       imageflag == 1
                           ? CircleAvatar(
                               backgroundColor: Colors.deepPurple,
@@ -288,7 +293,6 @@ class _UpdateStudState extends State<UpdateStud> {
                                   child: Icon(Icons.person,
                                       size: 80.0, color: Colors.white),
                                 ),
-
                       Positioned(
                           right: 0,
                           top: 40,
@@ -483,8 +487,7 @@ class _UpdateStudState extends State<UpdateStud> {
                         SizedBox(
                           width: 10,
                         ),
-                        Text(
-                          "${vehicletypee}",
+                        Text(selectedTypes.join(', '),
                           style: TextStyle(fontSize: 15),
                         ),
                       ],
@@ -526,6 +529,7 @@ class _UpdateStudState extends State<UpdateStud> {
                                 age: ageController,
                                 gender: genderController,
                                 uid: widget.uid,
+                                vehicle: selectedTypes,
                               ))));
                     },
                     style: ElevatedButton.styleFrom(
@@ -537,10 +541,13 @@ class _UpdateStudState extends State<UpdateStud> {
                       ),
                     ),
                     child: const Text("EDIT"),
-                  ),SizedBox(height: 20,),
-                    ElevatedButton(
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
                     onPressed: () {
-                     addprofile(_image!);
+                      addprofile(_image!);
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(MediaQuery.of(context).size.width, 50),
@@ -552,7 +559,6 @@ class _UpdateStudState extends State<UpdateStud> {
                     ),
                     child: const Text("UPDATE PROFILE PIC"),
                   ),
-                 
                 ],
               ),
             ),

@@ -1,4 +1,3 @@
-
 import 'package:drive_/STUDENTS/mysessionAll.dart';
 import 'package:drive_/tabar/tabbaritem.dart';
 import 'package:flutter/material.dart';
@@ -21,19 +20,19 @@ class _MysessionsState extends State<Mysessions> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 3,
-      child: Scaffold( floatingActionButton: FloatingActionButton(
-        elevation: 1,
-        onPressed: () {
-            
-        },
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        child: const Icon(
-          Icons.add,
-          size: 32,
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          elevation: 1,
+          onPressed: () {},
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          child: const Icon(
+            Icons.add,
+            size: 32,
+          ),
         ),
-      ),
         backgroundColor: Colors.white,
         appBar: AppBar(
           centerTitle: true,
@@ -59,8 +58,9 @@ class _MysessionsState extends State<Mysessions> {
           backgroundColor: Colors.white,
           elevation: 0,
         ),
-        body: SizedBox(height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
+        body: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
               Padding(
@@ -109,25 +109,21 @@ class _MysessionsState extends State<Mysessions> {
                     ],
                   ),
                 ),
-              ), Expanded(
+              ),
+              Expanded(
                 child: TabBarView(
-                 physics:BouncingScrollPhysics(),
-               
+                  physics: BouncingScrollPhysics(),
                   children: [
-                    
-                    if (selectedTabIndex == 0) MysessionsAll(),
-                  
-                    if (selectedTabIndex == 1) MysessionsAll(),
-                    if (selectedTabIndex == 2) MysessionsAll(),
+                    MysessionsAll(),
+                    MysessionsAll(),
+                    MysessionsAll(),
                   ],
                 ),
               ),
             ],
           ),
         ),
-        
       ),
     );
   }
 }
-
